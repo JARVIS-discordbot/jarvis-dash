@@ -5,6 +5,26 @@ from types import SimpleNamespace
 import discord
 from discord.ext.commands.view import StringView
 from redbot.core import commands
+from redbot.core.config import Config
+
+
+class DashboardContext(commands.Context):
+    """Context variant that records standard command replies in memory."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.dashboard_responses = []
+
+    async def send(self, content=None, **kwargs):
+        response = {"content": content}
+        for key in ("embed", "embeds", "view"):
+            if kwargs.get(key) is not None:
+                response[key] = str(kwargs[key])
+        self.dashboard_responses.append(response)
+        return SimpleNamespace(content=content)
+
+    async def reply(self, content=None, **kwargs):
+        return await self.send(content=content, **kwargs)
 
 
 class JarvisDashboard(commands.Cog):
@@ -12,12 +32,33 @@ class JarvisDashboard(commands.Cog):
 
     def __init__(self, bot: commands.Bot):
         self.bot = bot
+        self.config = Config.get_conf(self, identifier=9274018362, force_registration=True)
+        self.config.register_global(client_id="", client_secret="")
         self.bot.register_rpc_handler(self.DASHBOARD__COMMAND)
         self.bot.register_rpc_handler(self.DASHBOARD__COMMANDS)
+        self.bot.register_rpc_handler(self.DASHBOARD__OAUTH_CONFIG)
 
     def cog_unload(self):
         self.bot.unregister_rpc_handler(self.DASHBOARD__COMMAND)
         self.bot.unregister_rpc_handler(self.DASHBOARD__COMMANDS)
+        self.bot.unregister_rpc_handler(self.DASHBOARD__OAUTH_CONFIG)
+
+    @commands.command(name="dashboardsetcreds")
+    @commands.is_owner()
+    async def dashboard_set_credentials(self, ctx: commands.Context, client_id: str, client_secret: str):
+        """Set the Discord OAuth credentials used by the local dashboard."""
+        await self.config.client_id.set(client_id)
+        await self.config.client_secret.set(client_secret)
+        try:
+            await ctx.message.delete()
+        except (discord.Forbidden, discord.HTTPException):
+            pass
+        await ctx.send("Dashboard OAuth credentials saved. Restart the dashboard proxy to load them.")
+
+    async def DASHBOARD__OAUTH_CONFIG(self) -> dict:
+        """Return OAuth config to the local dashboard proxy only."""
+        async with self.config.all() as values:
+            return {"client_id": values["client_id"], "client_secret": values["client_secret"]}
 
     async def DASHBOARD__COMMANDS(self) -> list[dict]:
         """Return the loaded bot command tree for dashboard autocomplete."""
@@ -76,7 +117,9 @@ class JarvisDashboard(commands.Cog):
             type=discord.MessageType.default,
             flags=discord.MessageFlags._from_value(0),
         )
-        context = commands.Context(
+        respond_in_channel = payload.get("respond_in_channel", True)
+        context_type = commands.Context if respond_in_channel else DashboardContext
+        context = context_type(
             message=message,
             bot=self.bot,
             view=StringView(command_text),
@@ -91,6 +134,8 @@ class JarvisDashboard(commands.Cog):
             "command": command_text,
             "resolved_command": context.command.qualified_name if context.command else None,
             "channel_id": channel.id,
+            "responded_in_channel": bool(respond_in_channel),
+            "responses": getattr(context, "dashboard_responses", []),
         }
 
 

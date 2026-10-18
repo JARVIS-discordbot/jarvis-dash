@@ -501,6 +501,23 @@ textarea:focus {
     grid-column: 1/-1
 }
 
+.reply-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 14px 0 2px;
+    color: var(--muted);
+    font: 11px var(--mono);
+    letter-spacing: 0
+}
+
+.reply-toggle input {
+    width: 14px;
+    height: 14px;
+    margin: 0;
+    accent-color: var(--acid)
+}
+
 .history-list {
     margin-top: 18px
 }
@@ -602,4 +619,29 @@ footer a:hover {
         flex-direction: column;
         gap: 12px
     }
+}
+
+.topbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 18px
+}
+
+.auth-user,
+.login-link,
+.logout-link {
+    color: var(--muted);
+    font: 10px var(--mono);
+    letter-spacing: .08em;
+    text-decoration: none
+}
+
+.login-link,
+.logout-link {
+    color: var(--acid)
+}
+
+.login-link:hover,
+.logout-link:hover {
+    color: var(--ink)
 }
