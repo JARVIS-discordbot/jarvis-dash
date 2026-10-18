@@ -3,8 +3,8 @@
 from types import SimpleNamespace
 
 import discord
-from discord.ext import commands
 from discord.ext.commands.view import StringView
+from redbot.core import commands
 
 
 class JarvisDashboard(commands.Cog):
