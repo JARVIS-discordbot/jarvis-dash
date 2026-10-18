@@ -1,0 +1,16 @@
+{
+    "author": [
+        "Jarvis Dashboard"
+    ],
+    "description": "Local RPC control bridge for executing Red commands from the Jarvis Dashboard.",
+    "install_msg": "Load this cog, start Red with --rpc, and connect Jarvis Dashboard to ws://127.0.0.1:6133.",
+    "short": "Control Red from a local dashboard.",
+    "requirements": [],
+    "tags": [
+        "rpc",
+        "dashboard",
+        "control"
+    ],
+    "type": "COG",
+    "end_user_data_statement": "This cog does not persist end-user data."
+}

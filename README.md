@@ -17,7 +17,10 @@ The Explorer can discover and call registered RPC handlers. The Raw call panel c
 
 The dashboard's **Run a command** panel uses the included `red_cog/jarvis_dashboard.py` cog. Install that file as a Red cog, load it in the bot, and start Red with `--rpc`.
 
-The cog registers `DASHBOARD__COMMAND`. It accepts:
+The cog registers two RPC handlers:
+
+- `DASHBOARD__COMMANDS` returns the loaded command tree, aliases, signatures, help text, and cog names. The dashboard uses this to populate command autocomplete and help metadata.
+- `DASHBOARD__COMMAND` executes a command in a real Discord context. It accepts:
 
 ```json
 {
