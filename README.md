@@ -1,6 +1,5 @@
 # Jarvis Dashboard
 
-A local operator dashboard for Red Discord Bot's provisional RPC server.
 
 ## Run the dashboard
 
@@ -33,6 +32,4 @@ The cog registers two RPC handlers:
 
 It resolves the real guild, channel, and member from the bot cache, then invokes Red's normal command pipeline. Replies are sent to the actual Discord channel, and normal command checks/converters still run.
 
-Only expose the dashboard on the same machine as the bot. Red intentionally binds its RPC server to `127.0.0.1` because RPC access is full bot control.
 
-RPC reference: https://docs.discord.red/en/stable/framework_rpc.html
