@@ -49,7 +49,8 @@ async function loadCogCredentials() {
 const server = http.createServer(async (request, response) => {
     const url = new URL(request.url, `http://${request.headers.host}`)
     if (url.pathname === '/auth/login') {
-        if (!clientId || !clientSecret) return json(response, 500, { error: 'Set DISCORD_CLIENT_ID and DISCORD_CLIENT_SECRET first.' })
+        await loadCogCredentials()
+        if (!clientId || !clientSecret) return json(response, 500, { error: 'Run ;dashboardsetcreds in Red or set DISCORD_CLIENT_ID and DISCORD_CLIENT_SECRET, then retry.' })
         const state = crypto.randomBytes(24).toString('hex')
         oauthStates.add(state)
         const query = new URLSearchParams({ client_id: clientId, redirect_uri: redirectUri, response_type: 'code', scope: 'identify', state })
@@ -83,6 +84,7 @@ const server = http.createServer(async (request, response) => {
         const filePath = path.join(root, file)
         if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) return fs.createReadStream(filePath).pipe(response)
     }
+    if (url.pathname === '/') return redirect(response, 'http://127.0.0.1:5173/')
     response.writeHead(404); response.end('Run Vite in development or build for production.')
 })
 
